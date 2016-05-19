@@ -2,13 +2,14 @@
 
 use Cartalyst\Sentinel\Laravel\Facades\Activation;
 use Cartalyst\Sentinel\Users\EloquentUser;
+use DraperStudio\Collectable\Traits\HasCollections;
 use Illuminate\Support\Facades\Config;
 use Laracasts\Presenter\PresentableTrait;
 use Modules\User\Entities\UserInterface;
 
 class User extends EloquentUser implements UserInterface
 {
-    use PresentableTrait;
+    use PresentableTrait, HasCollections;
 
     protected $fillable = [
         'email',
