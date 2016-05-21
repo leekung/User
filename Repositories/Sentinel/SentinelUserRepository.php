@@ -35,6 +35,15 @@ class SentinelUserRepository implements UserRepository
     }
 
     /**
+     * Returns all the users
+     * @return object
+     */
+    public function latest($amount = 5)
+    {
+        return $this->user->orderBy('created_at', 'desc')->take($amount)->get();
+    }
+
+    /**
      * Create a user resource
      * @param $data
      * @return mixed
