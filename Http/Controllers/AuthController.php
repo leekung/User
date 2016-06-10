@@ -8,10 +8,18 @@ use Modules\User\Http\Requests\LoginRequest;
 use Modules\User\Http\Requests\RegisterRequest;
 use Modules\User\Http\Requests\ResetCompleteRequest;
 use Modules\User\Http\Requests\ResetRequest;
+use Modules\User\Services\UserRegistration;
+use Modules\User\Services\UserResetter;
 
 class AuthController extends BasePublicController
 {
     use DispatchesJobs;
+
+    public function __construct()
+    {
+        parent::__construct();
+
+    }
 
     public function getLogin()
     {
@@ -45,7 +53,7 @@ class AuthController extends BasePublicController
 
     public function postRegister(RegisterRequest $request)
     {
-        app('Modules\User\Services\UserRegistration')->register($request->all());
+        app(UserRegistration::class)->register($request->all());
 
         flash()->success(trans('user::messages.account created check email for activation'));
 
@@ -79,7 +87,7 @@ class AuthController extends BasePublicController
     public function postReset(ResetRequest $request)
     {
         try {
-            $this->dispatchFrom('Modules\User\Commands\BeginResetProcessCommand', $request);
+            app(UserResetter::class)->startReset($request->all());
         } catch (UserNotFoundException $e) {
             flash()->error(trans('user::messages.no user found'));
 
@@ -99,8 +107,7 @@ class AuthController extends BasePublicController
     public function postResetComplete($userId, $code, ResetCompleteRequest $request)
     {
         try {
-            $this->dispatchFromArray(
-                'Modules\User\Commands\CompleteResetProcessCommand',
+            app(UserResetter::class)->finishReset(
                 array_merge($request->all(), ['userId' => $userId, 'code' => $code])
             );
         } catch (UserNotFoundException $e) {
